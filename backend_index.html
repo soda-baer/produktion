@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Produktionsziel-Tracker</title>
+    <link rel="stylesheet" href="backend_styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <h1>Produktionsziel-Tracker</h1>
+    
+    <!-- Vereinfachte Auswahl nur zwischen "Heute" und "Morgen" -->
+    <form id="zielForm">
+        <label for="tagAuswahl">Tag:</label>
+        <select id="tagAuswahl">
+            <option value="Heute">Heute</option>
+            <option value="Morgen">Morgen</option>
+        </select>
+        
+        <br>
+        
+        <label for="zeitfensterAuswahl">Zeitfenster:</label>
+        <select id="zeitfensterAuswahl">
+            <option value="08-09">8 Uhr</option>
+            <option value="09-10">9 Uhr</option>
+			<option value="10-11">10 Uhr</option>
+			<option value="11-12">11 Uhr</option>
+			<option value="12-13">12 Uhr</option>
+			<option value="13-14">13 Uhr</option>
+			<option value="14-15">14 Uhr</option>
+			<option value="15-16">15 Uhr</option>
+			<option value="16-17">16 Uhr</option>
+			<option value="17-18">17 Uhr</option>
+            <!-- Weitere Optionen für die Zeitfenster -->
+        </select>
+        
+        <br>
+        
+        <label for="zielEingabe">Ziel:</label>
+        <input type="text" id="zielEingabe">
+        
+        <br>
+        
+        <button type="button" onclick="zieleSpeichern()">Speichern</button>
+    </form>
+	
+	<div id="gespeicherteZiele"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>
+

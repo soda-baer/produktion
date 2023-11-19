@@ -1,0 +1,22 @@
+/* Beispiel-Styling */
+body {
+    font-family: Josephine, sans-serif;
+}
+.deleteButton {
+    color: red; /* Ändere die Farbe des Symbols */
+    cursor: pointer; /* Ändere den Cursor, um anzuzeigen, dass es anklickbar ist */
+    /* Weitere Stile nach Bedarf */
+}
+.events-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.event-box {
+    background-color: #f2f2f2;
+    padding: 10px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+    border: 2px solid black;
+    font-size: 24px; /* Hier kannst du die Schriftgröße anpassen */
+}
