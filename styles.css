@@ -1,4 +1,41 @@
-/* Beispiel-Styling */
-body {
-    font-family: Arial, sans-serif;
+/* Allgemeiner Container für die Ereignisse */
+.events-container {
+    background-color: #f2f2f2; /* Grauer Hintergrund */
+    padding: 20px;
+    width: 80%;
+    margin: 0 auto;
+}
+
+/* Einzelnes Ereignis */
+.event-item {
+    background-color: #f2f2f2;
+    padding: 10px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+    border: 2px solid black;
+    font-size: 24px; /* Hier kannst du die Schriftgröße anpassen */
+}
+
+/* Blaues Ereignis (aktuelles Ereignis) */
+.event-item.current {
+    background-color: #add8e6; /* Blauer Hintergrund */
+}
+
+/* Grünes Ereignis (fertiggestellt) */
+.event-item.completed {
+    background-color: #90ee90; /* Grüner Hintergrund */
+}
+
+.events-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.event-box {
+    background-color: #f2f2f2;
+    padding: 10px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+    border: 2px solid black;
+    font-size: 24px; /* Hier kannst du die Schriftgröße anpassen */
 }
