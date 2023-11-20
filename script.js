@@ -16,29 +16,29 @@ const db = firebase.firestore();
 
 // Funktion zum Speichern von Zielen in Firebase
 function zieleSpeichern() {
-  var selectedDay = document.getElementById("tagAuswahl").value;
-  var selectedZeitfenster = document.getElementById("zeitfensterAuswahl").value;
-  var zielWert = document.getElementById("zielEingabe").value;
+    var selectedDay = document.getElementById("tagAuswahl").value;
+    var selectedZeitfenster = document.getElementById("zeitfensterAuswahl").value;
+    var zielWert = document.getElementById("zielEingabe").value;
 
-  // Daten zum Speichern in Firebase vorbereiten
-  var data = {
-    id: generateUniqueID(),
-    description: zielWert,
-    completed: false // Angenommen, dass dies die Standardeinstellung ist
-  };
+    // Referenz zur Firebase-Datenbank aufbauen
+    var db = firebase.database();
+    var eventsRef = db.ref(selectedDay);
 
-  // Eine Referenz auf die Sammlung für den ausgewählten Tag erstellen
-  var collectionRef = db.collection(selectedDay);
+    // Eindeutige ID für das neue Ereignis erstellen
+    var uniqueID = generateUniqueID(); // Funktion, um eine eindeutige ID zu erstellen
 
-  // Ein neues Dokument in der Sammlung mit der eindeutigen ID erstellen
-  collectionRef.doc(selectedZeitfenster).set(data)
-    .then(function() {
-      alert("Ziel gespeichert für " + selectedDay + ", Zeitfenster: " + selectedZeitfenster + ", Ziel: " + zielWert);
-      anzeigenGespeicherterZiele();
-    })
-    .catch(function(error) {
-      console.error("Fehler beim Speichern des Ziels: ", error);
-    });
+    // Hinzufügen des neuen Ereignisses mit der eindeutigen ID in Firebase
+    eventsRef.child(selectedZeitfenster).set({ id: uniqueID, description: zielWert })
+        .then(function() {
+            console.log('Ereignis erfolgreich gespeichert.');
+            alert("Ziel gespeichert für " + selectedDay + ", Zeitfenster: " + selectedZeitfenster + ", Ziel: " + zielWert);
+            anzeigenGespeicherterZiele();
+        })
+        .catch(function(error) {
+            console.error('Fehler beim Speichern des Ereignisses:', error);
+        });
+    
+    return uniqueID;
 }
 
 // Funktion zum Anzeigen gespeicherter Ziele aus Firebase
