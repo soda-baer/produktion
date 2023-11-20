@@ -1,68 +1,72 @@
-unction generateUniqueID() {
-    return '_' + Math.random().toString(36).substr(2, 9); // Beispiel für eine zufällige ID
-}
+// Initialisiere Firebase
+const firebaseConfig = {
+	apiKey: "AIzaSyAeLlMTpy-epnicTIajhYY6jSn-4Amm2-E",
+    authDomain: "produktionszieledb.firebaseapp.com",
+    projectId: "produktionszieledb",
+    storageBucket: "produktionszieledb.appspot.com",
+    messagingSenderId: "1051974021423",
+    appId: "1:1051974021423:web:a308b7c94e10188322b1da"
+};
 
+// Initialisiere Firebase
+firebase.initializeApp(firebaseConfig);
+
+// Eine Referenz auf die Firebase-Datenbank erhalten
+const db = firebase.firestore();
+
+// Funktion zum Speichern von Zielen in Firebase
 function zieleSpeichern() {
-    var selectedDay = document.getElementById("tagAuswahl").value;
-    var selectedZeitfenster = document.getElementById("zeitfensterAuswahl").value;
-    var zielWert = document.getElementById("zielEingabe").value;
+  var selectedDay = document.getElementById("tagAuswahl").value;
+  var selectedZeitfenster = document.getElementById("zeitfensterAuswahl").value;
+  var zielWert = document.getElementById("zielEingabe").value;
 
-    var storedEvents = JSON.parse(localStorage.getItem(selectedDay)) || {};
-    var completedEvents = JSON.parse(localStorage.getItem(selectedDay + '_completed')) || {};
+  // Daten zum Speichern in Firebase vorbereiten
+  var data = {
+    id: generateUniqueID(),
+    description: zielWert,
+    completed: false // Angenommen, dass dies die Standardeinstellung ist
+  };
 
-    // Eindeutige ID für das neue Ereignis erstellen
-    var uniqueID = generateUniqueID(); // Funktion, um eine eindeutige ID zu erstellen
+  // Eine Referenz auf die Sammlung für den ausgewählten Tag erstellen
+  var collectionRef = db.collection(selectedDay);
 
-    // Löschen des alten Ereignisses, falls es existiert
-    delete storedEvents[selectedZeitfenster];
-
-    // Hinzufügen des neuen Ereignisses mit der eindeutigen ID
-    storedEvents[selectedZeitfenster] = { id: uniqueID, description: zielWert };
-    completedEvents[uniqueID] = false; // Fertigstellungsstatus auf "false" setzen
-
-    localStorage.setItem(selectedDay, JSON.stringify(storedEvents));
-    localStorage.setItem(selectedDay + '_completed', JSON.stringify(completedEvents));
-
-    alert("Ziel gespeichert für " + selectedDay + ", Zeitfenster: " + selectedZeitfenster + ", Ziel: " + zielWert);
-
-    anzeigenGespeicherterZiele();
-	
-	return uniqueID;
+  // Ein neues Dokument in der Sammlung mit der eindeutigen ID erstellen
+  collectionRef.doc(selectedZeitfenster).set(data)
+    .then(function() {
+      alert("Ziel gespeichert für " + selectedDay + ", Zeitfenster: " + selectedZeitfenster + ", Ziel: " + zielWert);
+      anzeigenGespeicherterZiele();
+    })
+    .catch(function(error) {
+      console.error("Fehler beim Speichern des Ziels: ", error);
+    });
 }
 
-
+// Funktion zum Anzeigen gespeicherter Ziele aus Firebase
 function anzeigenGespeicherterZiele() {
-    var zieleContainer = document.getElementById("gespeicherteZiele");
-    zieleContainer.innerHTML = "";
+  var zieleContainer = document.getElementById("gespeicherteZiele");
+  zieleContainer.innerHTML = "";
 
-    function createDeleteButton(selectedDay, index) {
-        var deleteButton = document.createElement('span');
-        deleteButton.textContent = "  X"; // Setze das rote X als Textinhalt
-        deleteButton.classList.add("deleteButton");
-        deleteButton.onclick = function() {
-            var storedEvents = JSON.parse(localStorage.getItem(selectedDay));
-            storedEvents.splice(index, 1);
-            localStorage.setItem(selectedDay, JSON.stringify(storedEvents));
-            anzeigenGespeicherterZiele();
-        };
-        return deleteButton;
-    }
+  // Annahme: 'Heute' und 'Morgen' sind die Sammlungen in der Datenbank
+  ['Heute', 'Morgen'].forEach(function(selectedDay) {
+    var collectionRef = db.collection(selectedDay);
 
-    ['Heute', 'Morgen'].forEach(function(selectedDay) {
-        var storedEvents = JSON.parse(localStorage.getItem(selectedDay)) || [];
-        if (storedEvents.length > 0) {
-            var dayHeader = document.createElement('h2');
-            dayHeader.textContent = selectedDay;
-            zieleContainer.appendChild(dayHeader);
+    // Dokumente aus der Sammlung abrufen und anzeigen
+    collectionRef.get().then(function(querySnapshot) {
+      if (!querySnapshot.empty) {
+        var dayHeader = document.createElement('h2');
+        dayHeader.textContent = selectedDay;
+        zieleContainer.appendChild(dayHeader);
 
-            storedEvents.forEach(function(event, index) {
-                var zielElement = document.createElement('div');
-                zielElement.textContent = event.zeitfenster + ": " + event.description;
-                zielElement.appendChild(createDeleteButton(selectedDay, index));
-                zieleContainer.appendChild(zielElement);
-            });
-        }
+        querySnapshot.forEach(function(doc) {
+          var zielElement = document.createElement('div');
+          zielElement.textContent = doc.id + ": " + doc.data().description;
+          zieleContainer.appendChild(zielElement);
+        });
+      }
+    }).catch(function(error) {
+      console.error("Fehler beim Abrufen der Ziele: ", error);
     });
+  });
 }
 
 function tagWechselPruefen() {

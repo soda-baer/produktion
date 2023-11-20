@@ -1,98 +1,66 @@
-window.onload = function() {
-    function displayEventsForDay(selectedDay) {
-        var storedEvents = JSON.parse(localStorage.getItem(selectedDay)) || {};
-        var completedEvents = JSON.parse(localStorage.getItem(selectedDay + '_completed')) || {};
+// Import der Firebase SDKs
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-app.js";
+import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-firestore.js";
 
-        var eventsContainer = document.getElementById('eventsContainer');
-        eventsContainer.innerHTML = '';
+// Konfiguration für Firebase
+const firebaseConfig = {
+	apiKey: "AIzaSyAeLlMTpy-epnicTIajhYY6jSn-4Amm2-E",
+    authDomain: "produktionszieledb.firebaseapp.com",
+    projectId: "produktionszieledb",
+    storageBucket: "produktionszieledb.appspot.com",
+    messagingSenderId: "1051974021423",
+    appId: "1:1051974021423:web:a308b7c94e10188322b1da"
+};
 
-        Object.keys(storedEvents).forEach(function(timeSlot) {
-            var event = storedEvents[timeSlot];
-            var eventId = event.id;
+// Initialisierung der Firebase-App
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
-            var eventBox = document.createElement('div');
-            eventBox.classList.add('event-item');
-            eventBox.id = eventId;
+window.onload = async function() {
+  // Funktion zum Anzeigen der Ereignisse für einen bestimmten Tag aus Firebase
+  async function displayEventsForDay(selectedDay) {
+    const eventsContainer = document.getElementById('eventsContainer');
+    eventsContainer.innerHTML = '';
 
-            var eventText = document.createElement('p');
-            eventText.textContent = timeSlot + ": " + event.description;
+    try {
+      const eventCollection = collection(db, selectedDay);
+      const querySnapshot = await getDocs(eventCollection);
 
-            eventBox.appendChild(eventText);
+      querySnapshot.forEach((doc) => {
+        const event = doc.data();
+        const eventId = doc.id;
 
-            if (completedEvents[eventId]) {
-                eventBox.classList.add('completed');
-            }
+        const eventBox = document.createElement('div');
+        eventBox.classList.add('event-item');
+        eventBox.id = eventId;
 
-            eventsContainer.appendChild(eventBox);
+        const eventText = document.createElement('p');
+        eventText.textContent = eventId + ": " + event.description;
 
-            if (!completedEvents[eventId]) {
-                eventBox.classList.add('not-completed');
-                createFinishButton(eventId, selectedDay);
-            }
-        });
+        eventBox.appendChild(eventText);
 
-        document.getElementById('currentDay').textContent = "Produktionsereignisse für " + selectedDay;
+        // Hier kannst du je nach Bedarf die Klasse 'completed' hinzufügen
+
+        eventsContainer.appendChild(eventBox);
+      });
+    } catch (error) {
+      console.error("Fehler beim Abrufen der Ereignisse:", error);
     }
 
-    var currentDay = 'Heute';
+    document.getElementById('currentDay').textContent = "Produktionsereignisse für " + selectedDay;
+  }
+
+  // Funktion zum Anzeigen der Ereignisse für den aktuellen Tag
+  var currentDay = 'Heute';
+  displayEventsForDay(currentDay);
+
+  // Funktion zum Wechseln zwischen 'Heute' und 'Morgen'
+  function showNextDay() {
+    currentDay = (currentDay === 'Heute') ? 'Morgen' : 'Heute';
     displayEventsForDay(currentDay);
+  }
 
-    function createFinishButton(eventId, selectedDay) {
-        var finishButton = document.createElement('button');
-        finishButton.textContent = "Fertiggestellt";
-        finishButton.onclick = function() {
-            var completedEvents = JSON.parse(localStorage.getItem(selectedDay + '_completed')) || {};
-            completedEvents[eventId] = true;
-            localStorage.setItem(selectedDay + '_completed', JSON.stringify(completedEvents));
-
-            var eventBox = document.getElementById(eventId);
-            eventBox.classList.remove('not-completed');
-            eventBox.classList.add('completed');
-        };
-        document.getElementById(eventId).appendChild(finishButton);
-    }
-
-
-    var currentDay = 'Heute';
-    displayEventsForDay(currentDay);
-
-    function createFinishButton(eventId, selectedDay) {
-		var finishButton = document.createElement('button');
-		finishButton.textContent = "Fertiggestellt";
-		finishButton.onclick = function() {
-			var completedEvents = JSON.parse(localStorage.getItem(selectedDay + '_completed')) || {};
-			completedEvents[eventId] = true;
-			localStorage.setItem(selectedDay + '_completed', JSON.stringify(completedEvents));
-			
-			console.log('Aktualisierte completedEvents:', completedEvents);
-
-			var eventBox = document.getElementById(eventId);
-			eventBox.classList.remove('current');
-			eventBox.classList.add('completed');
-
-			var nextEvent = eventBox.nextElementSibling;
-			if (nextEvent) {
-				nextEvent.classList.add('current');
-				createFinishButton(nextEvent.id, selectedDay);
-			}
-		};
-		document.getElementById(eventId).appendChild(finishButton);
-
-		// Check if the event is already completed and apply the completed class
-		var completedEvents = JSON.parse(localStorage.getItem(selectedDay + '_completed')) || {};
-		if (completedEvents[eventId]) {
-			var eventBox = document.getElementById(eventId);
-			eventBox.classList.remove('current');
-			eventBox.classList.add('completed');
-		}
-	}
-
-    function showNextDay() {
-        currentDay = (currentDay === 'Heute') ? 'Morgen' : 'Heute';
-        displayEventsForDay(currentDay);
-    }
-
-    document.getElementById('nextDayButton').onclick = function() {
-        showNextDay();
-    };
+  document.getElementById('nextDayButton').onclick = function() {
+    showNextDay();
+  };
 };
